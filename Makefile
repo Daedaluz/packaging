@@ -3,7 +3,7 @@ BUILD_DIR := $(CURDIR)/build
 
 -include .env
 
-.PHONY: all clean distclean upload $(PACKAGES)
+.PHONY: all clean distclean upload check-updates update-versions $(PACKAGES)
 
 all: $(PACKAGES)
 
@@ -30,6 +30,14 @@ $(PACKAGES:%=%-arm64): %-arm64:
 
 $(PACKAGES:%=%-armhf): %-armhf:
 	$(MAKE) -C packages/$* build-armhf
+
+# Check for new upstream versions.
+check-updates:
+	@$(CURDIR)/scripts/check-updates.sh
+
+# Check and update Makefiles with new versions.
+update-versions:
+	@$(CURDIR)/scripts/check-updates.sh --update
 
 # Upload all .deb files in build/ to aptly and add them to the repo.
 # Requires .env with APTLY_URL, APTLY_USER, APTLY_PASS, APTLY_REPO.
