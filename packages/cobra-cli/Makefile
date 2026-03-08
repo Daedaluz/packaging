@@ -1,5 +1,5 @@
 PKG_NAME        := cobra-cli
-PKG_VERSION     := 1.10.2
+PKG_VERSION     := 1.3.0
 PKG_DESCRIPTION := CLI scaffolding tool for Cobra-based Go applications
 PKG_HOMEPAGE    := https://github.com/spf13/cobra-cli
 PKG_LICENSE     := Apache-2.0
