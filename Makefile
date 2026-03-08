@@ -32,10 +32,12 @@ $(PACKAGES:%=%-armhf): %-armhf:
 	$(MAKE) -C packages/$* build-armhf
 
 # Install build dependencies.
+APT_OPTS := -o Dpkg::Progress-Fancy="0" -o APT::Color="0" -o Dpkg::Use-Pty="0"
+
 deps:
-	apt-get update
-	apt-get install -y build-essential golang/dev git curl dpkg-dev python3 gcc-arm-linux-gnueabihf gcc-aarch64-linux-gnu
-	apt-get upgrade -y
+	apt-get $(APT_OPTS) update -qq
+	apt-get $(APT_OPTS) install -y -qq build-essential golang/dev git curl dpkg-dev python3 gcc-arm-linux-gnueabihf gcc-aarch64-linux-gnu gh
+	apt-get $(APT_OPTS) upgrade -y -qq
 
 # Check for new upstream versions.
 check-updates:

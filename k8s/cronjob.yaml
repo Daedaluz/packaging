@@ -39,6 +39,11 @@ spec:
               env:
                 - name: SSH_CLONE
                   value: "1"
+                - name: GH_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: gh-token
+                      key: GH_TOKEN
               volumeMounts:
                 - name: data
                   mountPath: /data

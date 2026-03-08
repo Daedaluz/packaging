@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         gcc-arm-linux-gnueabihf \
         gcc-aarch64-linux-gnu  && \
     curl -fsSL https://deb.inits.se/x/sources/inits/dev | tee /etc/apt/sources.list.d/inits-dev.sources && \
-    apt update && apt install golang/dev && \
+    apt update && apt install golang/dev gh && \
     rm -rf /var/lib/apt/lists/*
 
 RUN git config --global user.name "Builder" && \
