@@ -27,6 +27,8 @@ if [ -n "$WORK_DIR" ]; then
     exec ./scripts/ci.sh
 fi
 
+gh auth status
+
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 cd "$ROOT_DIR"
