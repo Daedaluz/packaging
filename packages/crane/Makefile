@@ -1,5 +1,5 @@
 PKG_NAME        := crane
-PKG_VERSION     := 0.20.3
+PKG_VERSION     := 0.21.2
 PKG_DESCRIPTION := A tool for managing container images
 PKG_HOMEPAGE    := https://github.com/google/go-containerregistry
 PKG_LICENSE     := Apache-2.0
