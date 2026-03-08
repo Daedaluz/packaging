@@ -111,6 +111,7 @@ set_version() {
 }
 
 updates_available=0
+updated_list=""
 
 for pkg_dir in "$PACKAGES_DIR"/*/; do
     pkg=$(basename "$pkg_dir")
@@ -161,6 +162,7 @@ for pkg_dir in "$PACKAGES_DIR"/*/; do
         if [ "$UPDATE" = true ]; then
             set_version "$makefile" "$latest"
             printf "  %-20s %s\n" "" "$(green "updated")"
+            updated_list+="$pkg $current $latest"$'\n'
         fi
     fi
 done
@@ -168,4 +170,9 @@ done
 if [ "$UPDATE" = false ] && [ "$updates_available" -eq 1 ]; then
     echo ""
     echo "Run with --update to apply changes."
+fi
+
+# Write updated list to stdout fd 3 if open (used by auto-update.sh)
+if [ -n "$updated_list" ] && { true >&3; } 2>/dev/null; then
+    printf '%s' "$updated_list" >&3
 fi

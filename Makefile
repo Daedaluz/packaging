@@ -3,7 +3,7 @@ BUILD_DIR := $(CURDIR)/build
 
 -include .env
 
-.PHONY: all clean distclean upload publish check-updates update-versions deps $(PACKAGES)
+.PHONY: all clean distclean upload publish check-updates update-versions auto-update deps $(PACKAGES)
 
 all: $(PACKAGES)
 
@@ -43,6 +43,10 @@ check-updates:
 # Check and update Makefiles with new versions.
 update-versions:
 	@$(CURDIR)/scripts/check-updates.sh --update
+
+# Pull, check for updates, commit and push if any found.
+auto-update:
+	@$(CURDIR)/scripts/auto-update.sh
 
 # Upload all .deb files in build/ to aptly and add them to the repo.
 # Requires .env with APTLY_URL, APTLY_USER, APTLY_PASS, APTLY_REPO.
