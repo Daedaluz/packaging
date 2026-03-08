@@ -1,4 +1,4 @@
-FROM golang:1.26.1-bookworm
+FROM debian:bookworm-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
@@ -6,14 +6,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         curl \
         dpkg-dev \
         python3 \
+	ca-certificates \
         gcc-arm-linux-gnueabihf \
-        gcc-aarch64-linux-gnu \
-    && rm -rf /var/lib/apt/lists/*
+        gcc-aarch64-linux-gnu  && \
+    curl -fsSL https://deb.inits.se/x/sources/inits/dev | tee /etc/apt/sources.list.d/inits-dev.sources && \
+    apt update && apt install golang/dev && \
+    rm -rf /var/lib/apt/lists/*
 
-WORKDIR /build
+RUN git config --global user.name "Builder" && \
+    git config --global user.email "builder@localhost" && \
+    git config --global safe.directory /
 
-COPY . .
+WORKDIR /src
 
-RUN mkdir -p /out
-
-CMD ["make", "all", "BUILD_DIR=/out"]
+CMD ["bash"]

@@ -1,7 +1,7 @@
 PKG_NAME        := golang
 PKG_VERSION     := 1.26.1
 PKG_EPOCH       := 2
-PKG_REVISION    := 1
+PKG_REVISION    := 2
 PKG_DESCRIPTION := The Go programming language
 PKG_HOMEPAGE    := https://go.dev
 PKG_LICENSE     := BSD-3-Clause
@@ -37,9 +37,9 @@ build-$(1): fetch-$(1)
 	mkdir -p $(BUILD_DIR)/$(1)/pkg/DEBIAN
 	mkdir -p $(BUILD_DIR)/$(1)/pkg/etc/profile.d
 	tar -xzf $(DL_DIR)/$(call tarball,$(1)) -C $(BUILD_DIR)/$(1)/pkg/$(INSTALL_DIR)
-	@echo '#!/bin/sh' > $(BUILD_DIR)/$(1)/pkg/etc/profile.d/golang.sh
-	@echo 'export PATH=$$$$PATH:/usr/local/go/bin' >> $(BUILD_DIR)/$(1)/pkg/etc/profile.d/golang.sh
-	chmod 644 $(BUILD_DIR)/$(1)/pkg/etc/profile.d/golang.sh
+	mkdir -p $(BUILD_DIR)/$(1)/pkg/usr/bin
+	ln -sf /usr/local/go/bin/go $(BUILD_DIR)/$(1)/pkg/usr/bin/go
+	ln -sf /usr/local/go/bin/gofmt $(BUILD_DIR)/$(1)/pkg/usr/bin/gofmt
 	@echo "Package: $(PKG_NAME)" > $(BUILD_DIR)/$(1)/pkg/DEBIAN/control
 	@echo "Version: $(PKG_EPOCH):$(PKG_VERSION)-$(PKG_REVISION)" >> $(BUILD_DIR)/$(1)/pkg/DEBIAN/control
 	@echo "Architecture: $(1)" >> $(BUILD_DIR)/$(1)/pkg/DEBIAN/control

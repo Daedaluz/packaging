@@ -24,12 +24,21 @@
 #   PRE_BUILD       - Commands to run before go build (inside source dir)
 #   POST_INSTALL    - Hook to copy extra files into package tree
 #   GO_TRIMPATH     - Set to empty to disable -trimpath (default: -trimpath)
+#   BUILD_CMD       - Override the entire build command. Runs inside SRC_DIR.
+#                     Use @@OUTPUT@@ as a placeholder for the output binary path.
+#                     GOOS, GOARCH, GOARM are set as env vars automatically.
+#
+# Control scripts:
+#   Place a debian/ directory next to the package Makefile containing any of:
+#     preinst, postinst, prerm, postrm, conffiles, triggers, templates, config
+#   These will be copied into DEBIAN/ and made executable (where appropriate).
 
 SHELL := /bin/bash
 
 ROOT_DIR    := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 SRC_DIR     := $(ROOT_DIR)/src/$(PKG_NAME)
 BUILD_DIR   := $(ROOT_DIR)/build
+PKG_DIR     := $(dir $(firstword $(MAKEFILE_LIST)))
 
 ARCHES      ?= amd64 arm64 armhf
 PKG_MAINTAINER ?= Tobias Assarsson <tobias.asssarsson@gmail.com>
@@ -56,6 +65,12 @@ build-$(1): fetch
 	rm -rf $(BUILD_DIR)/$(1)/pkg
 	mkdir -p $(BUILD_DIR)/$(1)/pkg/$(INSTALL_DIR)
 	mkdir -p $(BUILD_DIR)/$(1)/pkg/DEBIAN
+	$(if $(BUILD_CMD),\
+	cd $(SRC_DIR) && \
+		GOOS=linux \
+		GOARCH=$(goarch_$(1)) \
+		$(if $(GOARM_$(1)),GOARM=$(GOARM_$(1)),) \
+		$(subst @@OUTPUT@@,$(BUILD_DIR)/$(1)/pkg/$(INSTALL_DIR)/$(BINARY_NAME),$(BUILD_CMD)),\
 	cd $(SRC_DIR) && \
 		$(EXTRA_BUILD_ENV) \
 		CGO_ENABLED=$(CGO_ENABLED) \
@@ -68,7 +83,7 @@ build-$(1): fetch
 			$(EXTRA_GOFLAGS) \
 			-ldflags '$(LDFLAGS_STR)' \
 			-o $(BUILD_DIR)/$(1)/pkg/$(INSTALL_DIR)/$(BINARY_NAME) \
-			$(GO_PKG)
+			$(GO_PKG))
 	$(if $(POST_INSTALL),cd $(SRC_DIR) && DEST=$(BUILD_DIR)/$(1)/pkg $(POST_INSTALL),)
 	@echo "Package: $(PKG_NAME)" > $(BUILD_DIR)/$(1)/pkg/DEBIAN/control
 	@echo "Version: $(PKG_VERSION)-$(PKG_REVISION)" >> $(BUILD_DIR)/$(1)/pkg/DEBIAN/control
@@ -79,6 +94,12 @@ build-$(1): fetch
 	@echo "Homepage: $(PKG_HOMEPAGE)" >> $(BUILD_DIR)/$(1)/pkg/DEBIAN/control
 	@echo "Description: $(PKG_DESCRIPTION)" >> $(BUILD_DIR)/$(1)/pkg/DEBIAN/control
 	$(if $(PKG_DEPENDS),@echo "Depends: $(PKG_DEPENDS)" >> $(BUILD_DIR)/$(1)/pkg/DEBIAN/control,)
+	@if [ -d "$(PKG_DIR)debian" ]; then \
+		cp -a $(PKG_DIR)debian/* $(BUILD_DIR)/$(1)/pkg/DEBIAN/; \
+		for f in $(BUILD_DIR)/$(1)/pkg/DEBIAN/pre* $(BUILD_DIR)/$(1)/pkg/DEBIAN/post* $(BUILD_DIR)/$(1)/pkg/DEBIAN/config; do \
+			[ -f "$$f" ] && chmod 755 "$$f" || true; \
+		done; \
+	fi
 	dpkg-deb --build --root-owner-group $(BUILD_DIR)/$(1)/pkg \
 		$(BUILD_DIR)/$(PKG_NAME)_$(PKG_VERSION)-$(PKG_REVISION)_$(1).deb
 	@echo "==> Built $(BUILD_DIR)/$(PKG_NAME)_$(PKG_VERSION)-$(PKG_REVISION)_$(1).deb"
@@ -92,6 +113,8 @@ fetch:
 		echo "==> Cloning $(GIT_URL) @ $(GIT_TAG)"; \
 		git clone --depth 1 --branch $(GIT_TAG) $(GIT_URL) $(SRC_DIR); \
 	fi
+	@git config --global --get-all safe.directory | grep -qxF '$(SRC_DIR)' || \
+		git config --global --add safe.directory '$(SRC_DIR)'
 	$(if $(PRE_BUILD),cd $(SRC_DIR) && $(PRE_BUILD),)
 
 .PHONY: all
