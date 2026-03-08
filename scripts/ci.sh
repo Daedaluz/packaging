@@ -9,7 +9,11 @@
 
 set -euo pipefail
 
-REPO_URL="https://github.com/daedaluz/packaging.git"
+if [ -n "${SSH_CLONE:-}" ]; then
+    REPO_URL="git@github.com:daedaluz/packaging.git"
+else
+    REPO_URL="https://github.com/daedaluz/packaging.git"
+fi
 WORK_DIR="${1:-}"
 
 # If a directory argument is given, clone/pull there and re-exec its copy of ci.sh

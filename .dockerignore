@@ -1,5 +1,5 @@
 build/
 src/
-*.deb
 .env
-ci-cd.key
+.git/
+*.deb

@@ -1,11 +1,14 @@
 FROM debian:bookworm-slim
 
+ENV DEBIAN_FRONTEND=noninteractive
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
         git \
         curl \
         dpkg-dev \
         python3 \
+	openssh-client \
 	ca-certificates \
         gcc-arm-linux-gnueabihf \
         gcc-aarch64-linux-gnu  && \
