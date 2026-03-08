@@ -1,5 +1,6 @@
 PKG_NAME        := golang
 PKG_VERSION     := 1.26.1
+PKG_EPOCH       := 2
 PKG_REVISION    := 1
 PKG_DESCRIPTION := The Go programming language
 PKG_HOMEPAGE    := https://go.dev
@@ -40,15 +41,16 @@ build-$(1): fetch-$(1)
 	@echo 'export PATH=$$$$PATH:/usr/local/go/bin' >> $(BUILD_DIR)/$(1)/pkg/etc/profile.d/golang.sh
 	chmod 644 $(BUILD_DIR)/$(1)/pkg/etc/profile.d/golang.sh
 	@echo "Package: $(PKG_NAME)" > $(BUILD_DIR)/$(1)/pkg/DEBIAN/control
-	@echo "Version: $(PKG_VERSION)-$(PKG_REVISION)" >> $(BUILD_DIR)/$(1)/pkg/DEBIAN/control
+	@echo "Version: $(PKG_EPOCH):$(PKG_VERSION)-$(PKG_REVISION)" >> $(BUILD_DIR)/$(1)/pkg/DEBIAN/control
 	@echo "Architecture: $(1)" >> $(BUILD_DIR)/$(1)/pkg/DEBIAN/control
 	@echo "Maintainer: $(PKG_MAINTAINER)" >> $(BUILD_DIR)/$(1)/pkg/DEBIAN/control
 	@echo "Section: $(PKG_SECTION)" >> $(BUILD_DIR)/$(1)/pkg/DEBIAN/control
 	@echo "Priority: $(PKG_PRIORITY)" >> $(BUILD_DIR)/$(1)/pkg/DEBIAN/control
 	@echo "Homepage: $(PKG_HOMEPAGE)" >> $(BUILD_DIR)/$(1)/pkg/DEBIAN/control
 	@echo "Description: $(PKG_DESCRIPTION)" >> $(BUILD_DIR)/$(1)/pkg/DEBIAN/control
-	@echo "Conflicts: golang-go" >> $(BUILD_DIR)/$(1)/pkg/DEBIAN/control
-	@echo "Provides: golang-go" >> $(BUILD_DIR)/$(1)/pkg/DEBIAN/control
+	@echo "Conflicts: golang-go, golang-src, golang-doc" >> $(BUILD_DIR)/$(1)/pkg/DEBIAN/control
+	@echo "Provides: golang-go, golang-src, golang-doc" >> $(BUILD_DIR)/$(1)/pkg/DEBIAN/control
+	@echo "Replaces: golang-go, golang-src, golang-doc" >> $(BUILD_DIR)/$(1)/pkg/DEBIAN/control
 	dpkg-deb --build --root-owner-group $(BUILD_DIR)/$(1)/pkg \
 		$(BUILD_DIR)/$(PKG_NAME)_$(PKG_VERSION)-$(PKG_REVISION)_$(1).deb
 	@echo "==> Built $(BUILD_DIR)/$(PKG_NAME)_$(PKG_VERSION)-$(PKG_REVISION)_$(1).deb"
