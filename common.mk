@@ -53,6 +53,7 @@ define DEB_ARCH_template
 .PHONY: build-$(1)
 build-$(1): fetch
 	@echo "==> Building $(PKG_NAME) for $(1)"
+	rm -rf $(BUILD_DIR)/$(1)/pkg
 	mkdir -p $(BUILD_DIR)/$(1)/pkg/$(INSTALL_DIR)
 	mkdir -p $(BUILD_DIR)/$(1)/pkg/DEBIAN
 	cd $(SRC_DIR) && \

@@ -1,9 +1,9 @@
-PACKAGES := k9s delve gops golangci-lint golang helm kubectl dive crane cobra-cli grpcurl aptakube gh cosign
+PACKAGES := k9s delve gops golangci-lint golang helm kubectl dive crane cobra-cli grpcurl aptakube gh cosign buf
 BUILD_DIR := $(CURDIR)/build
 
 -include .env
 
-.PHONY: all clean distclean upload check-updates update-versions deps $(PACKAGES)
+.PHONY: all clean distclean upload publish check-updates update-versions deps $(PACKAGES)
 
 all: $(PACKAGES)
 
@@ -66,4 +66,20 @@ upload:
 	curl -fsSL $(CURL_AUTH) -X POST \
 		$(APTLY_URL)/api/repos/$(APTLY_REPO_ENC)/file/$(UPLOAD_DIR)?forceReplace=1
 	@echo
-	@echo "==> Done. You may need to update your published repo."
+	@echo "==> Done. Run 'make publish' to update the published repo."
+
+# Update the published repository.
+# Requires APTLY_PUBLISH_PREFIX in .env (use "." for the root prefix).
+APTLY_PREFIX_ENC = $(shell printf '%s' '$(APTLY_PUBLISH_PREFIX)' | python3 -c 'import sys,urllib.parse;print(urllib.parse.quote(sys.stdin.read(),safe=""))')
+
+publish:
+	@test -n "$(APTLY_URL)" || { echo "error: APTLY_URL not set."; exit 1; }
+	@test -n "$(APTLY_PUBLISH_PREFIX)" || { echo "error: APTLY_PUBLISH_PREFIX not set."; exit 1; }
+	@test -n "$(APTLY_PUBLISH_DIST)" || { echo "error: APTLY_PUBLISH_DIST not set."; exit 1; }
+	@echo "==> Updating published repo (prefix: $(APTLY_PUBLISH_PREFIX), dist: $(APTLY_PUBLISH_DIST))"
+	curl -fsSL $(CURL_AUTH) -X PUT \
+		-H 'Content-Type: application/json' \
+		-d '{"ForceOverwrite": true}' \
+		$(APTLY_URL)/api/publish/$(APTLY_PREFIX_ENC)/$(APTLY_PUBLISH_DIST)
+	@echo
+	@echo "==> Published repo updated."
