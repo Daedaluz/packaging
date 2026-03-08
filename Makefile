@@ -1,9 +1,9 @@
-PACKAGES := k9s delve gops golangci-lint golang helm kubectl dive crane cobra-cli grpcurl aptakube
+PACKAGES := k9s delve gops golangci-lint golang helm kubectl dive crane cobra-cli grpcurl aptakube gh cosign
 BUILD_DIR := $(CURDIR)/build
 
 -include .env
 
-.PHONY: all clean distclean upload check-updates update-versions $(PACKAGES)
+.PHONY: all clean distclean upload check-updates update-versions deps $(PACKAGES)
 
 all: $(PACKAGES)
 
@@ -30,6 +30,11 @@ $(PACKAGES:%=%-arm64): %-arm64:
 
 $(PACKAGES:%=%-armhf): %-armhf:
 	$(MAKE) -C packages/$* build-armhf
+
+# Install build dependencies.
+deps:
+	sudo apt-get update
+	sudo apt-get install -y build-essential git curl dpkg-dev python3 gcc-arm-linux-gnueabihf gcc-aarch64-linux-gnu
 
 # Check for new upstream versions.
 check-updates:
