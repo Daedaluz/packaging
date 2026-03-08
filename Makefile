@@ -33,9 +33,9 @@ $(PACKAGES:%=%-armhf): %-armhf:
 
 # Install build dependencies.
 deps:
-	sudo apt-get update
-	sudo apt-get install -y build-essential golang/dev git curl dpkg-dev python3 gcc-arm-linux-gnueabihf gcc-aarch64-linux-gnu
-	sudo apt-get upgrade -y
+	apt-get update
+	apt-get install -y build-essential golang/dev git curl dpkg-dev python3 gcc-arm-linux-gnueabihf gcc-aarch64-linux-gnu
+	apt-get upgrade -y
 
 # Check for new upstream versions.
 check-updates:

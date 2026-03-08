@@ -17,6 +17,8 @@ RUN git config --global user.name "Builder" && \
     git config --global user.email "builder@localhost" && \
     git config --global safe.directory /
 
+COPY scripts/ /usr/bin/
+
 WORKDIR /src
 
 CMD ["bash"]

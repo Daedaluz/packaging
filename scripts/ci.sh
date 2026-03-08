@@ -2,20 +2,34 @@
 # CI script: install deps, check for updates, build, upload, and publish.
 # Expects .env to be present (or env vars set externally).
 # Usage:
-#   ./scripts/ci.sh
+#   ./scripts/ci.sh [directory]
+#
+# If directory is given and does not contain the repo, it will be cloned there.
+# Defaults to the current working directory.
 
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-ROOT_DIR="$(dirname "$SCRIPT_DIR")"
+REPO_URL="https://github.com/daedaluz/packaging.git"
+WORK_DIR="${1:-.}"
 
-cd "$ROOT_DIR"
+# Clone if the directory doesn't exist or is empty
+if [ ! -f "$WORK_DIR/Makefile" ]; then
+    echo "==> Cloning $REPO_URL into $WORK_DIR"
+    git clone "$REPO_URL" "$WORK_DIR"
+fi
+
+cd "$WORK_DIR"
+SCRIPT_DIR="$(pwd)/scripts"
 
 # 1. Install build dependencies
 echo "==> Installing dependencies"
 make deps
 
 # 2. Pull and check for updates
+echo ""
+echo "==> Pulling latest changes"
+git pull --ff-only
+
 echo ""
 echo "==> Checking for upstream updates"
 UPDATED_FILE=$(mktemp)
@@ -54,8 +68,11 @@ git add packages/*/Makefile
 git commit -m "$SUBJECT" -m "$BODY"
 git push
 
-# 4. Build only updated packages
+# 4. Clean build directory and build only updated packages
 echo ""
+echo "==> Cleaning build directory"
+rm -rf build/
+
 echo "==> Building updated packages: ${UPDATED_PKGS[*]}"
 for pkg in "${UPDATED_PKGS[@]}"; do
     make -C "packages/$pkg" distclean
