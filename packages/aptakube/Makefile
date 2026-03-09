@@ -1,5 +1,5 @@
 PKG_NAME    := aptakube
-PKG_VERSION := 1.14.4
+PKG_VERSION     := 1.15.0
 
 SHELL    := /bin/bash
 ROOT_DIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST)))/../..)
