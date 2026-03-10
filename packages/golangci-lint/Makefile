@@ -1,5 +1,5 @@
 PKG_NAME        := golangci-lint
-PKG_VERSION     := 2.11.2
+PKG_VERSION     := 2.11.3
 PKG_DESCRIPTION := Fast linters runner for Go
 PKG_HOMEPAGE    := https://github.com/golangci/golangci-lint
 PKG_LICENSE     := GPL-3.0
