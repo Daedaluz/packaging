@@ -1,5 +1,5 @@
 PKG_NAME        := buf
-PKG_VERSION     := 1.66.0
+PKG_VERSION     := 1.66.1
 PKG_DESCRIPTION := The best way to work with Protocol Buffers
 PKG_HOMEPAGE    := https://buf.build
 PKG_LICENSE     := Apache-2.0
